@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Portal for Migrant Workers</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Job Portal for Migrant Workers</h1>
+        <p>Connecting workers with employers - eliminating middlemen</p>
+    </header>
+    
+    <div class="container">
+        <div id="connectionStatus" class="disconnected">
+            Connecting to blockchain...
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="applicants">Applicants</button>
+            <button class="tab" data-tab="jobs">Jobs</button>
+            <button class="tab" data-tab="applications">Applications & Ratings</button>
+        </div>
+        
+        <div id="applicants" class="tab-content active">
+            <div class="section">
+                <h2>Add New Applicant</h2>
+                <form id="addApplicantForm">
+                    <label for="applicantName">Name:</label>
+                    <input type="text" id="applicantName" required>
+                    
+                    <label for="contactInfo">Contact Information:</label>
+                    <input type="text" id="contactInfo" required>
+                    
+                    <label for="skillsDescription">Skills Description:</label>
+                    <textarea id="skillsDescription" rows="3" required></textarea>
+                    
+                    <label for="applicantType">Applicant Type:</label>
+                    <select id="applicantType" required>
+                        <option value="0">Plumber</option>
+                        <option value="1">Electrician</option>
+                        <option value="2">Mason</option>
+                        <option value="3">Carpenter</option>
+                        <option value="4">Painter</option>
+                        <option value="5">Other</option>
+                    </select>
+                    
+                    <label for="personalDetails">Personal Details:</label>
+                    <textarea id="personalDetails" rows="3" required></textarea>
+                    
+                    <label for="laborHistory">Labor History:</label>
+                    <textarea id="laborHistory" rows="3" required></textarea>
+                    
+                    <button type="submit">Add Applicant</button>
+                </form>
+                <div id="addApplicantStatus"></div>
+            </div>
+            
+            <div class="section">
+                <h2>View Applicant Details</h2>
+                <div>
+                    <label for="applicantId">Applicant ID:</label>
+                    <input type="number" id="applicantId" min="1">
+                    <button id="getApplicantBtn">Get Details</button>
+                </div>
+                <div id="applicantDetails" class="card" style="display:none;"></div>
+                <div id="getApplicantStatus"></div>
+            </div>
+            
+            <div class="section">
+                <h2>All Applicants</h2>
+                <button id="listApplicantsBtn">Refresh List</button>
+                <div id="applicantsList"></div>
+                <div id="listApplicantsStatus"></div>
+            </div>
+        </div>
+        
+        <div id="jobs" class="tab-content">
+            <div class="section">
+                <h2>Add New Job</h2>
+                <form id="addJobForm">
+                    <label for="jobTitle">Title:</label>
+                    <input type="text" id="jobTitle" required>
+                    
+                    <label for="jobDescription">Description:</label>
+                    <textarea id="jobDescription" rows="3" required></textarea>
+                    
+                    <label for="jobSalary">Salary (in Wei):</label>
+                    <input type="number" id="jobSalary" required>
+                    
+                    <label for="requiredType">Required Worker Type:</label>
+                    <select id="requiredType" required>
+                        <option value="0">Plumber</option>
+                        <option value="1">Electrician</option>
+                        <option value="2">Mason</option>
+                        <option value="3">Carpenter</option>
+                        <option value="4">Painter</option>
+                        <option value="5">Other</option>
+                    </select>
+                    
+                    <button type="submit">Add Job</button>
+                </form>
+                <div id="addJobStatus"></div>
+            </div>
+            
+            <div class="section">
+                <h2>View Job Details</h2>
+                <div>
+                    <label for="jobId">Job ID:</label>
+                    <input type="number" id="jobId" min="1">
+                    <button id="getJobBtn">Get Details</button>
+                </div>
+                <div id="jobDetails" class="card" style="display:none;"></div>
+                <div id="getJobStatus"></div>
+            </div>
+            
+            <div class="section">
+                <h2>All Jobs</h2>
+                <button id="listJobsBtn">Refresh List</button>
+                <div id="jobsList"></div>
+                <div id="listJobsStatus"></div>
+            </div>
+        </div>
+        
+        <div id="applications" class="tab-content">
+            <div class="section">
+                <h2>Apply for a Job</h2>
+                <form id="applyJobForm">
+                    <label for="applyApplicantId">Applicant ID:</label>
+                    <input type="number" id="applyApplicantId" min="1" required>
+                    
+                    <label for="applyJobId">Job ID:</label>
+                    <input type="number" id="applyJobId" min="1" required>
+                    
+                    <button type="submit">Apply</button>
+                </form>
+                <div id="applyJobStatus"></div>
+            </div>
+            
+            <div class="section">
+                <h2>Hire an Applicant</h2>
+                <form id="hireForm">
+                    <label for="hireApplicantId">Applicant ID:</label>
+                    <input type="number" id="hireApplicantId" min="1" required>
+                    
+                    <label for="hireJobId">Job ID:</label>
+                    <input type="number" id="hireJobId" min="1" required>
+                    
+                    <button type="submit">Hire</button>
+                </form>
+                <div id="hireStatus"></div>
+            </div>
+            
+            <div class="section">
+                <h2>Mark Job as Completed</h2>
+                <form id="completeJobForm">
+                    <label for="completeApplicantId">Applicant ID:</label>
+                    <input type="number" id="completeApplicantId" min="1" required>
+                    
+                    <label for="completeJobId">Job ID:</label>
+                    <input type="number" id="completeJobId" min="1" required>
+                    
+                    <button type="submit">Mark as Completed</button>
+                </form>
+                <div id="completeJobStatus"></div>
+            </div>
+            
+            <div class="section">
+                <h2>Rate an Applicant</h2>
+                <form id="rateForm">
+                    <label for="rateApplicantId">Applicant ID:</label>
+                    <input type="number" id="rateApplicantId" min="1" required>
+                    
+                    <label for="rateJobId">Job ID:</label>
+                    <input type="number" id="rateJobId" min="1" required>
+                    
+                    <label for="rateScore">Rating (1-5):</label>
+                    <input type="number" id="rateScore" min="1" max="5" required>
+                    
+                    <label for="rateComment">Comment:</label>
+                    <textarea id="rateComment" rows="3" required></textarea>
+                    
+                    <button type="submit">Submit Rating</button>
+                </form>
+                <div id="rateStatus"></div>
+            </div>
+            
+            <div class="section">
+                <h2>View Applicant Rating</h2>
+                <div>
+                    <label for="viewRatingApplicantId">Applicant ID:</label>
+                    <input type="number" id="viewRatingApplicantId" min="1">
+                    <button id="getApplicantRatingBtn">Get Rating</button>
+                </div>
+                <div id="applicantRating" class="card" style="display:none;"></div>
+                <div id="getApplicantRatingStatus"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include web3.js library (It's important to use the minified version as it's more stable) -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
+    <script src="script.js"></script>    
+</body>
+</html>

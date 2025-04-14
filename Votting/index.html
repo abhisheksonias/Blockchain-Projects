@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Voting System DApp</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🗳️ Blockchain Voting System</h1>
+    <button id="connectBtn">Connect Wallet</button>
+    <p id="walletAddress">Not connected</p>
+
+    <h2>Election Status: <span id="electionStatus">Loading...</span></h2>
+
+    <div id="candidateList">
+      <h3>Candidates:</h3>
+      <ul id="candidates"></ul>
+    </div>
+
+    <div id="voteSection">
+      <h3>Cast Your Vote</h3>
+      <input type="number" id="candidateId" placeholder="Enter Candidate ID">
+      <button onclick="castVote()">Vote</button>
+    </div>
+
+    <div id="resultsSection">
+      <h3>Check Results</h3>
+      <button onclick="getAllCandidates()">Refresh Results</button>
+      <ul id="results"></ul>
+    </div>
+
+    <div id="winnerSection">
+      <h3>Winner:</h3>
+      <button onclick="showWinner()">Show Winner</button>
+      <p id="winnerInfo"></p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
