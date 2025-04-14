@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPR Storage</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.3/web3.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #1f2937;
+        }
+
+        header {
+            background-color: #0f766e;
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 20px;
+        gap: 30px;
+    }
+
+    @media (min-width: 900px) {
+        .main {
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .card {
+            margin: 0 10px;
+            width: 100%;
+            max-width: 300px;
+        }
+    }
+
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 30px;
+            padding: 25px 30px;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #0f766e;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin: 15px 0 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        button {
+            background-color: #0f766e;
+            color: white;
+            padding: 12px;
+            width: 100%;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0d9488;
+        }
+
+        #patientDetails {
+            background-color: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            .main {
+                padding: 20px 10px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>Decentralized Patient Record Storage</header>
+
+    <div class="main">
+        <div class="card">
+            <h2>👨‍⚕️ Register Doctor</h2>
+            <label for="doctorName">Name</label>
+            <input type="text" id="doctorName" placeholder="e.g., Dr. John Doe">
+
+            <label for="doctorQualification">Qualification</label>
+            <input type="text" id="doctorQualification" placeholder="e.g., MBBS, MD">
+
+            <label for="doctorWorkplace">Workplace</label>
+            <input type="text" id="doctorWorkplace" placeholder="e.g., City Hospital">
+
+            <button onclick="registerDoctor()">Register Doctor</button>
+        </div>
+
+        <div class="card">
+            <h2>🧑‍💼 Register Patient</h2>
+            <label for="patientName">Name</label>
+            <input type="text" id="patientName" placeholder="e.g., Jane Smith">
+
+            <label for="patientAge">Age</label>
+            <input type="number" id="patientAge" placeholder="e.g., 30">
+
+            <button onclick="registerPatient()">Register Patient</button>
+        </div>
+
+        <div class="card">
+            <h2>📋 View Patient Records</h2>
+            <label for="patientId">Patient ID</label>
+            <input type="text" id="patientId" placeholder="e.g., 0x123...">
+
+            <button onclick="viewPatient()">View Record</button>
+            <div id="patientDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        let web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
+        let contractAddress = "0xf8e81D47203A594245E36C48e151709F0C19fBe8";
+        let contractABI = [/* Your ABI here */];
+        let contract = new web3.eth.Contract(contractABI, contractAddress);
+
+        async function registerDoctor() {
+            try {
+                const accounts = await web3.eth.getAccounts();
+                const name = document.getElementById("doctorName").value;
+                const qualification = document.getElementById("doctorQualification").value;
+                const workplace = document.getElementById("doctorWorkplace").value;
+                await contract.methods.registerDoctor(name, qualification, workplace).send({ from: accounts[0] });
+                alert("Doctor Registered Successfully!");
+            } catch (error) {
+                alert("Error registering doctor: " + error.message);
+            }
+        }
+
+        async function registerPatient() {
+            try {
+                const accounts = await web3.eth.getAccounts();
+                const name = document.getElementById("patientName").value;
+                const age = document.getElementById("patientAge").value;
+                await contract.methods.registerPatient(name, age).send({ from: accounts[0] });
+                alert("Patient Registered Successfully!");
+            } catch (error) {
+                alert("Error registering patient: " + error.message);
+            }
+        }
+
+        async function viewPatient() {
+            try {
+                const accounts = await web3.eth.getAccounts();
+                const patientId = document.getElementById("patientId").value;
+                const patientDetails = await contract.methods.viewPatientData(patientId).call();
+                document.getElementById("patientDetails").innerHTML = `
+                    <strong>ID:</strong> ${patientDetails[0]}<br>
+                    <strong>Name:</strong> ${patientDetails[1]}<br>
+                    <strong>Age:</strong> ${patientDetails[2]}<br>
+                    <strong>Diseases:</strong> ${patientDetails[3].join(", ")}
+                `;
+            } catch (error) {
+                alert("Error fetching patient details: " + error.message);
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Farm Supply Chain</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🌾 Farm Supply Chain Tracker</h1>
+
+    <section class="form-section">
+      <h2>Add New Product</h2>
+      <input type="number" id="productId" placeholder="Product ID" />
+      <input type="text" id="productDescription" placeholder="Product Description" />
+      <input type="text" id="producerName" placeholder="Producer Name" />
+      <input type="text" id="producerAddress" placeholder="Producer Address" />
+      <input type="date" id="harvestDate" placeholder="Harvest Date" />
+      <button onclick="addNewProduct()">Add Product</button>
+    </section>
+
+    <section class="form-section">
+      <h2>Transfer to Distributor</h2>
+      <input type="number" id="distProductId" placeholder="Product ID" />
+      <input type="text" id="distributorName" placeholder="Distributor Name" />
+      <input type="text" id="distributorAddress" placeholder="Distributor Address" />
+      <input type="date" id="prodToDistDate" placeholder="Transfer Date" />
+      <button onclick="transferToDistributor()">Transfer</button>
+    </section>
+
+    <section class="form-section">
+      <h2>Transfer to Retailer</h2>
+      <input type="number" id="retaProductId" placeholder="Product ID" />
+      <input type="text" id="retailerName" placeholder="Retailer Name" />
+      <input type="text" id="retailerAddress" placeholder="Retailer Address" />
+      <input type="date" id="distToRetaDate" placeholder="Transfer Date" />
+      <button onclick="transferToRetailer()">Transfer</button>
+    </section>
+
+    <section class="form-section">
+      <h2>Get Product Details</h2>
+      <input type="number" id="searchProductId" placeholder="Product ID" />
+      <button onclick="getProductDetails()">Search</button>
+      <pre id="productDetails"></pre>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

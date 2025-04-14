@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Finance - Letter of Credit</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Trade Finance - Letter of Credit</h1>
+        </header>
+
+        <div class="form-container">
+            <h3>Request Letter of Credit</h3>
+            <form id="requestLCForm" class="form">
+                <div class="input-group">
+                    <label for="expiryDate">Expiry Date (timestamp)</label>
+                    <input type="number" id="expiryDate" placeholder="Enter expiry timestamp" required>
+                </div>
+                <div class="input-group">
+                    <label for="buyer">Buyer Address</label>
+                    <input type="text" id="buyer" placeholder="Enter buyer address" required>
+                </div>
+                <div class="input-group">
+                    <label for="bank">Bank Address</label>
+                    <input type="text" id="bank" placeholder="Enter bank address" required>
+                </div>
+                <div class="input-group">
+                    <label for="seller">Seller Address</label>
+                    <input type="text" id="seller" placeholder="Enter seller address" required>
+                </div>
+                <div class="input-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" placeholder="Enter amount" required>
+                </div>
+                <button type="submit" class="btn">Request LC</button>
+                <div id="requestStatus" class="status-message"></div>
+            </form>
+        </div>
+
+        <div class="form-container">
+            <h3>Issue Letter of Credit</h3>
+            <div class="input-group">
+                <input type="number" id="lcIDToIssue" placeholder="Letter of Credit ID" required>
+                <button class="btn" onclick="issueLetterOfCredit()">Issue LC</button>
+            </div>
+            <div id="issueStatus" class="status-message"></div>
+        </div>
+
+        <div class="form-container">
+            <h3>Accept Letter of Credit</h3>
+            <div class="input-group">
+                <input type="number" id="lcIDToAccept" placeholder="Letter of Credit ID" required>
+                <button class="btn" onclick="acceptLetterOfCredit()">Accept LC</button>
+            </div>
+            <div id="acceptStatus" class="status-message"></div>
+        </div>
+
+        <div class="form-container">
+            <h3>View Letter of Credit</h3>
+            <div class="input-group">
+                <input type="number" id="lcIDToView" placeholder="Letter of Credit ID" required>
+                <button class="btn" onclick="viewLetterOfCredit()">View LC</button>
+            </div>
+            <div id="lcDetails"></div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Trade Finance. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
