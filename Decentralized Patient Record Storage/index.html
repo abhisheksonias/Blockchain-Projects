@@ -25,26 +25,27 @@
         }
 
         .main {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 40px 20px;
-        gap: 30px;
-    }
-
-    @media (min-width: 900px) {
-        .main {
-            flex-direction: row;
-            justify-content: center;
-            align-items: flex-start;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            gap: 30px;
         }
 
-        .card {
-            margin: 0 10px;
-            width: 100%;
-            max-width: 300px;
+        @media (min-width: 1200px) {
+            .main {
+                flex-direction: row;
+                justify-content: center;
+                align-items: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .card {
+                margin: 0 10px 20px;
+                width: 100%;
+                max-width: 280px;
+            }
         }
-    }
 
         .card {
             background-color: white;
@@ -99,6 +100,23 @@
             background-color: #0d9488;
         }
 
+        #status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .error {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
         #patientDetails {
             background-color: #f9fafb;
             padding: 15px;
@@ -117,11 +135,38 @@
                 padding: 20px;
             }
         }
+
+        #connectWallet {
+            background-color: #4f46e5;
+            margin-bottom: 20px;
+        }
+
+        #connectWallet:hover {
+            background-color: #4338ca;
+        }
+
+        #statusBar {
+            background-color: #f3f4f6;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 10px 0 20px;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
     <header>Decentralized Patient Record Storage</header>
+
+    <div class="main">
+        <div class="card" style="max-width: 700px;">
+            <h2>🔌 Connect Wallet</h2>
+            <p>Connect your MetaMask wallet to interact with the smart contract</p>
+            <button id="connectWallet" onclick="connectWallet()">Connect MetaMask</button>
+            <div id="statusBar">Wallet Status: Not Connected</div>
+            <div id="status"></div>
+        </div>
+    </div>
 
     <div class="main">
         <div class="card">
@@ -150,8 +195,17 @@
         </div>
 
         <div class="card">
+            <h2>👨‍⚕️ View Doctor Records</h2>
+            <label for="doctorId">Doctor Address</label>
+            <input type="text" id="doctorId" placeholder="e.g., 0x123...">
+
+            <button onclick="viewDoctor()">View Doctor</button>
+            <div id="doctorDetails"></div>
+        </div>
+
+        <div class="card">
             <h2>📋 View Patient Records</h2>
-            <label for="patientId">Patient ID</label>
+            <label for="patientId">Patient Address</label>
             <input type="text" id="patientId" placeholder="e.g., 0x123...">
 
             <button onclick="viewPatient()">View Record</button>
@@ -160,51 +214,509 @@
     </div>
 
     <script>
-        let web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
-        let contractAddress = "0xf8e81D47203A594245E36C48e151709F0C19fBe8";
-        let contractABI = [/* Your ABI here */];
-        let contract = new web3.eth.Contract(contractABI, contractAddress);
+        let web3;
+        let contract;
+        let currentAccount = null;
+        const contractAddress = "0x173357188b4fbe68ed77b984e243e2c678d09b93";
+        const contractABI = [
+            {
+                "inputs": [],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_disease",
+                        "type": "string"
+                    }
+                ],
+                "name": "addDisease",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "_id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_expiryDate",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_dose",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "_price",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "addMedicine",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "doctorCount",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "doctors",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "qualification",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "workPlace",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "medicineCount",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "medicines",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "expiryDate",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "dose",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "price",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "owner",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "patientCount",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "patients",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "age",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "_id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "_patient",
+                        "type": "address"
+                    }
+                ],
+                "name": "prescribeMedicine",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_qualification",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_workPlace",
+                        "type": "string"
+                    }
+                ],
+                "name": "registerDoctor",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "_age",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "registerPatient",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "_age",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "updateAge",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_doctor",
+                        "type": "address"
+                    }
+                ],
+                "name": "viewDoctorDetails",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_patient",
+                        "type": "address"
+                    }
+                ],
+                "name": "viewPatientData",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string[]",
+                        "name": "",
+                        "type": "string[]"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
+        async function connectWallet() {
+            // Check if MetaMask is installed
+            if (typeof window.ethereum === 'undefined') {
+                showStatus('MetaMask is not installed. Please install MetaMask to use this application.', 'error');
+                return;
+            }
+
+            try {
+                // Request account access
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                currentAccount = accounts[0];
+                document.getElementById('statusBar').textContent = `Wallet Connected: ${currentAccount.substring(0, 6)}...${currentAccount.substring(38)}`;
+                
+                // Create Web3 instance
+                web3 = new Web3(window.ethereum);
+                
+                // Initialize contract with ABI that will be added manually
+                contract = new web3.eth.Contract(contractABI, contractAddress);
+                
+                // Listen for account changes
+                window.ethereum.on('accountsChanged', function (accounts) {
+                    currentAccount = accounts[0];
+                    document.getElementById('statusBar').textContent = `Wallet Connected: ${currentAccount.substring(0, 6)}...${currentAccount.substring(38)}`;
+                });
+                
+                showStatus('Wallet connected successfully!', 'success');
+            } catch (error) {
+                showStatus('Error connecting to MetaMask: ' + error.message, 'error');
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = type;
+            
+            // Clear status after 5 seconds
+            setTimeout(() => {
+                statusElement.textContent = '';
+                statusElement.className = '';
+            }, 5000);
+        }
 
         async function registerDoctor() {
+            if (!checkConnection()) return;
+            
             try {
-                const accounts = await web3.eth.getAccounts();
                 const name = document.getElementById("doctorName").value;
                 const qualification = document.getElementById("doctorQualification").value;
                 const workplace = document.getElementById("doctorWorkplace").value;
-                await contract.methods.registerDoctor(name, qualification, workplace).send({ from: accounts[0] });
-                alert("Doctor Registered Successfully!");
+                
+                if (!name || !qualification || !workplace) {
+                    showStatus('Please provide all doctor details', 'error');
+                    return;
+                }
+                
+                await contract.methods.registerDoctor(name, qualification, workplace).send({ from: currentAccount });
+                showStatus('Doctor Registered Successfully!', 'success');
             } catch (error) {
-                alert("Error registering doctor: " + error.message);
+                showStatus('Error registering doctor: ' + error.message, 'error');
             }
         }
 
         async function registerPatient() {
+            if (!checkConnection()) return;
+            
             try {
-                const accounts = await web3.eth.getAccounts();
                 const name = document.getElementById("patientName").value;
                 const age = document.getElementById("patientAge").value;
-                await contract.methods.registerPatient(name, age).send({ from: accounts[0] });
-                alert("Patient Registered Successfully!");
+                
+                if (!name || !age) {
+                    showStatus('Please provide patient name and age', 'error');
+                    return;
+                }
+                
+                await contract.methods.registerPatient(name, parseInt(age)).send({ from: currentAccount });
+                showStatus('Patient Registered Successfully!', 'success');
             } catch (error) {
-                alert("Error registering patient: " + error.message);
+                showStatus('Error registering patient: ' + error.message, 'error');
+            }
+        }
+
+        async function viewDoctor() {
+            if (!checkConnection()) return;
+            
+            try {
+                const doctorId = document.getElementById("doctorId").value;
+                
+                if (!doctorId || !web3.utils.isAddress(doctorId)) {
+                    showStatus('Please enter a valid Ethereum address', 'error');
+                    return;
+                }
+                
+                const doctorDetails = await contract.methods.viewDoctorDetails(doctorId).call();
+                document.getElementById("doctorDetails").innerHTML = `
+                    <strong>ID:</strong> ${doctorDetails[0]}<br>
+                    <strong>Name:</strong> ${doctorDetails[1]}<br>
+                    <strong>Qualification:</strong> ${doctorDetails[2]}<br>
+                    <strong>Workplace:</strong> ${doctorDetails[3]}
+                `;
+            } catch (error) {
+                showStatus('Error fetching doctor details: ' + error.message, 'error');
+                document.getElementById("doctorDetails").innerHTML = '';
             }
         }
 
         async function viewPatient() {
+            if (!checkConnection()) return;
+            
             try {
-                const accounts = await web3.eth.getAccounts();
                 const patientId = document.getElementById("patientId").value;
+                
+                if (!patientId || !web3.utils.isAddress(patientId)) {
+                    showStatus('Please enter a valid Ethereum address', 'error');
+                    return;
+                }
+                
                 const patientDetails = await contract.methods.viewPatientData(patientId).call();
                 document.getElementById("patientDetails").innerHTML = `
                     <strong>ID:</strong> ${patientDetails[0]}<br>
                     <strong>Name:</strong> ${patientDetails[1]}<br>
                     <strong>Age:</strong> ${patientDetails[2]}<br>
-                    <strong>Diseases:</strong> ${patientDetails[3].join(", ")}
+                    <strong>Diseases:</strong> ${patientDetails[3].length > 0 ? patientDetails[3].join(", ") : "None recorded"}
                 `;
             } catch (error) {
-                alert("Error fetching patient details: " + error.message);
+                showStatus('Error fetching patient details: ' + error.message, 'error');
+                document.getElementById("patientDetails").innerHTML = '';
             }
         }
+
+        function checkConnection() {
+            if (!currentAccount || !web3 || !contract) {
+                showStatus('Please connect your wallet first', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        // Check if MetaMask is already connected
+        window.addEventListener('load', async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        // Auto-connect if previously authorized
+                        connectWallet();
+                    }
+                } catch (error) {
+                    console.error("Error checking for existing connections:", error);
+                }
+            }
+        });
     </script>
 </body>
 

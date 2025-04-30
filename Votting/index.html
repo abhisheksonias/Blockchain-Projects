@@ -1,42 +1,181 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Voting System DApp</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Voting System</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.1/web3.min.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>🗳️ Blockchain Voting System</h1>
-    <button id="connectBtn">Connect Wallet</button>
-    <p id="walletAddress">Not connected</p>
+    <div class="container">
+        <header>
+            <h1>Blockchain Voting System</h1>
+            <div id="account-info">
+                <span>Connected Account: </span>
+                <span id="account-address">Not connected</span>
+                <div id="account-role">Role: Guest</div>
+            </div>
+            <div id="election-status">Election Status: Not Started</div>
+        </header>
 
-    <h2>Election Status: <span id="electionStatus">Loading...</span></h2>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="admin-panel">Admin Panel</button>
+            <button class="tab-btn" data-tab="voter-panel">Voter Panel</button>
+            <button class="tab-btn" data-tab="results-panel">Results</button>
+        </div>
 
-    <div id="candidateList">
-      <h3>Candidates:</h3>
-      <ul id="candidates"></ul>
+        <main>
+            <!-- Admin Panel Tab -->
+            <section id="admin-panel" class="tab-content active">
+                <h2>Admin Controls</h2>
+                <div class="admin-actions">
+                    <div class="card">
+                        <h3>Candidate Management</h3>
+                        <form id="add-candidate-form">
+                            <div class="form-group">
+                                <label for="candidate-name">Name:</label>
+                                <input type="text" id="candidate-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="candidate-proposal">Proposal:</label>
+                                <textarea id="candidate-proposal" required></textarea>
+                            </div>
+                            <button type="submit" class="btn">Add Candidate</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3>Voter Management</h3>
+                        <form id="add-voter-form">
+                            <div class="form-group">
+                                <label for="voter-address">Ethereum Address:</label>
+                                <input type="text" id="voter-address" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="voter-name">Name:</label>
+                                <input type="text" id="voter-name" required>
+                            </div>
+                            <button type="submit" class="btn">Add Voter</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3>Election Controls</h3>
+                        <div class="btn-group">
+                            <button id="start-election" class="btn btn-primary">Start Election</button>
+                            <button id="end-election" class="btn btn-danger">End Election</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Voter Panel Tab -->
+            <section id="voter-panel" class="tab-content">
+                <h2>Voter Actions</h2>
+                <div class="voter-profile card">
+                    <h3>Your Profile</h3>
+                    <div id="voter-details">
+                        <p>Name: <span id="voter-profile-name">Not registered</span></p>
+                        <p>Status: <span id="voter-status">Not registered</span></p>
+                        <p>Voted For: <span id="voter-voted-for">None</span></p>
+                        <p>Delegation: <span id="voter-delegation">None</span></p>
+                    </div>
+                </div>
+
+                <div class="voting-actions">
+                    <div class="card">
+                        <h3>Cast Your Vote</h3>
+                        <div id="candidates-list" class="candidates-grid">
+                            <!-- Candidates will be loaded here -->
+                            <p class="empty-state">No candidates available</p>
+                            <button id="modal-vote-btn" class="btn btn-primary">Vote for this Candidate</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Delegate Your Vote</h3>
+                        <form id="delegate-form">
+                            <div class="form-group">
+                                <label for="delegate-address">Delegate Address:</label>
+                                <input type="text" id="delegate-address" required>
+                            </div>
+                            <button type="submit" class="btn">Delegate Vote</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Panel Tab -->
+            <section id="results-panel" class="tab-content">
+                <h2>Election Results</h2>
+                <div class="card" id="winner-card" style="display: none;">
+                    <h3>🏆 Election Winner 🏆</h3>
+                    <div id="winner-details">
+                        <p>Name: <span id="winner-name"></span></p>
+                        <p>ID: <span id="winner-id"></span></p>
+                        <p>Votes: <span id="winner-votes"></span></p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>All Candidates Results</h3>
+                    <div id="results-list" class="results-table-container">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Votes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-table-body">
+                                <!-- Results will be loaded here -->
+                                <tr>
+                                    <td colspan="4" class="empty-state">No results available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <div id="notification" class="notification hidden"></div>
     </div>
 
-    <div id="voteSection">
-      <h3>Cast Your Vote</h3>
-      <input type="number" id="candidateId" placeholder="Enter Candidate ID">
-      <button onclick="castVote()">Vote</button>
+    <!-- Candidate Details Modal -->
+    <div id="candidate-details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Candidate Details</h2>
+            <div id="modal-candidate-details">
+                <p>Name: <span id="modal-candidate-name"></span></p>
+                <p>ID: <span id="modal-candidate-id"></span></p>
+                <p>Proposal: <span id="modal-candidate-proposal"></span></p>
+                <p>Votes: <span id="modal-candidate-votes"></span></p>
+            </div>
+            <button id="modal-vote-btn" class="btn btn-primary">Vote for this Candidate</button>
+        </div>
     </div>
 
-    <div id="resultsSection">
-      <h3>Check Results</h3>
-      <button onclick="getAllCandidates()">Refresh Results</button>
-      <ul id="results"></ul>
+    <!-- Voter Details Modal -->
+    <div id="voter-details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Voter Details</h2>
+            <div id="modal-voter-details">
+                <p>Name: <span id="modal-voter-name"></span></p>
+                <p>Address: <span id="modal-voter-address"></span></p>
+                <p>Has Voted: <span id="modal-voter-has-voted"></span></p>
+                <p>Voted For: <span id="modal-voter-candidate"></span></p>
+                <p>Delegation: <span id="modal-voter-delegation"></span></p>
+            </div>
+        </div>
     </div>
 
-    <div id="winnerSection">
-      <h3>Winner:</h3>
-      <button onclick="showWinner()">Show Winner</button>
-      <p id="winnerInfo"></p>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
-  <script src="script.js"></script>
+    <!-- You'll add ABI code manually -->
+    <script src="script.js"></script>
 </body>
 </html>

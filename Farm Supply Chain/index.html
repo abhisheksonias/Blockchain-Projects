@@ -3,50 +3,207 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Farm Supply Chain</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>FarmChain - Agricultural Supply Chain Tracker</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
-    <h1>🌾 Farm Supply Chain Tracker</h1>
-
-    <section class="form-section">
-      <h2>Add New Product</h2>
-      <input type="number" id="productId" placeholder="Product ID" />
-      <input type="text" id="productDescription" placeholder="Product Description" />
-      <input type="text" id="producerName" placeholder="Producer Name" />
-      <input type="text" id="producerAddress" placeholder="Producer Address" />
-      <input type="date" id="harvestDate" placeholder="Harvest Date" />
-      <button onclick="addNewProduct()">Add Product</button>
-    </section>
-
-    <section class="form-section">
-      <h2>Transfer to Distributor</h2>
-      <input type="number" id="distProductId" placeholder="Product ID" />
-      <input type="text" id="distributorName" placeholder="Distributor Name" />
-      <input type="text" id="distributorAddress" placeholder="Distributor Address" />
-      <input type="date" id="prodToDistDate" placeholder="Transfer Date" />
-      <button onclick="transferToDistributor()">Transfer</button>
-    </section>
-
-    <section class="form-section">
-      <h2>Transfer to Retailer</h2>
-      <input type="number" id="retaProductId" placeholder="Product ID" />
-      <input type="text" id="retailerName" placeholder="Retailer Name" />
-      <input type="text" id="retailerAddress" placeholder="Retailer Address" />
-      <input type="date" id="distToRetaDate" placeholder="Transfer Date" />
-      <button onclick="transferToRetailer()">Transfer</button>
-    </section>
-
-    <section class="form-section">
-      <h2>Get Product Details</h2>
-      <input type="number" id="searchProductId" placeholder="Product ID" />
-      <button onclick="getProductDetails()">Search</button>
-      <pre id="productDetails"></pre>
-    </section>
+    <header class="header">
+      <div class="logo">
+        <i class="fas fa-leaf"></i>
+        <h1>FarmChain</h1>
+      </div>
+      <div id="walletStatus" class="wallet-status disconnected">
+        <i class="fas fa-wallet"></i>
+        <span>Connect Wallet</span>
+      </div>
+    </header>
+    
+    <div class="tabs">
+      <div class="tab active" data-tab="add">Add Product</div>
+      <div class="tab" data-tab="transfer">Transfer</div>
+      <div class="tab" data-tab="track">Track Product</div>
+    </div>
+    
+    <div class="content">
+      <!-- Add Product Tab -->
+      <div class="tab-content active" id="add-tab">
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-seedling"></i>
+            <h2>Register New Farm Product</h2>
+          </div>
+          <form id="addProductForm">
+            <div class="form-group">
+              <label for="productId">Product ID</label>
+              <input type="number" id="productId" required placeholder="Enter unique product ID" />
+            </div>
+            <div class="form-group">
+              <label for="productDescription">Product Description</label>
+              <input type="text" id="productDescription" required placeholder="e.g., Organic Tomatoes" />
+            </div>
+            <div class="form-group">
+              <label for="producerName">Producer Name</label>
+              <input type="text" id="producerName" required placeholder="e.g., Green Valley Farms" />
+            </div>
+            <div class="form-group">
+              <label for="producerAddress">Producer Location</label>
+              <input type="text" id="producerAddress" required placeholder="e.g., 123 Farm Road, Countryside" />
+            </div>
+            <div class="form-group">
+              <label for="harvestDate">Harvest Date</label>
+              <input type="date" id="harvestDate" required />
+            </div>
+            <button type="submit" class="btn">
+              <i class="fas fa-plus-circle"></i>
+              Register Product
+            </button>
+            <div id="addStatus" class="transaction-status"></div>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Transfer Tab -->
+      <div class="tab-content" id="transfer-tab">
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-truck"></i>
+            <h2>Transfer to Distributor</h2>
+          </div>
+          <form id="distributorForm">
+            <div class="form-group">
+              <label for="distProductId">Product ID</label>
+              <input type="number" id="distProductId" required placeholder="Enter product ID" />
+            </div>
+            <div class="form-group">
+              <label for="distributorName">Distributor Name</label>
+              <input type="text" id="distributorName" required placeholder="e.g., Fresh Logistics Co." />
+            </div>
+            <div class="form-group">
+              <label for="distributorAddress">Distributor Location</label>
+              <input type="text" id="distributorAddress" required placeholder="e.g., 456 Distribution Ave" />
+            </div>
+            <div class="form-group">
+              <label for="prodToDistDate">Transfer Date</label>
+              <input type="date" id="prodToDistDate" required />
+            </div>
+            <button type="submit" class="btn">
+              <i class="fas fa-exchange-alt"></i>
+              Transfer to Distributor
+            </button>
+            <div id="distStatus" class="transaction-status"></div>
+          </form>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-store"></i>
+            <h2>Transfer to Retailer</h2>
+          </div>
+          <form id="retailerForm">
+            <div class="form-group">
+              <label for="retaProductId">Product ID</label>
+              <input type="number" id="retaProductId" required placeholder="Enter product ID" />
+            </div>
+            <div class="form-group">
+              <label for="retailerName">Retailer Name</label>
+              <input type="text" id="retailerName" required placeholder="e.g., Local Market" />
+            </div>
+            <div class="form-group">
+              <label for="retailerAddress">Retailer Location</label>
+              <input type="text" id="retailerAddress" required placeholder="e.g., 789 Market Street" />
+            </div>
+            <div class="form-group">
+              <label for="distToRetaDate">Transfer Date</label>
+              <input type="date" id="distToRetaDate" required />
+            </div>
+            <button type="submit" class="btn">
+              <i class="fas fa-exchange-alt"></i>
+              Transfer to Retailer
+            </button>
+            <div id="retailStatus" class="transaction-status"></div>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Track Product Tab -->
+      <div class="tab-content" id="track-tab">
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-search"></i>
+            <h2>Track Product Journey</h2>
+          </div>
+          <form id="trackForm">
+            <div class="form-group">
+              <label for="searchProductId">Product ID</label>
+              <input type="number" id="searchProductId" required placeholder="Enter product ID to track" />
+            </div>
+            <button type="submit" class="btn">
+              <i class="fas fa-search"></i>
+              Search
+            </button>
+            <div id="trackStatus" class="transaction-status"></div>
+          </form>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-route"></i>
+            <h2>Product Journey</h2>
+          </div>
+          <div id="productTimeline" class="product-timeline">
+            <div class="timeline-step timeline-empty">
+              <div class="timeline-icon">
+                <i class="fas fa-seedling"></i>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-title">Producer</div>
+                <div class="timeline-info">No product selected</div>
+              </div>
+            </div>
+            <div class="timeline-step timeline-empty">
+              <div class="timeline-icon">
+                <i class="fas fa-truck"></i>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-title">Distributor</div>
+                <div class="timeline-info">No product selected</div>
+              </div>
+            </div>
+            <div class="timeline-step timeline-empty">
+              <div class="timeline-icon">
+                <i class="fas fa-store"></i>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-title">Retailer</div>
+                <div class="timeline-info">No product selected</div>
+              </div>
+            </div>
+          </div>
+          <pre id="productDetails" class="product-details" style="display: none;"></pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="overlay" id="qrOverlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title">Product QR Code</h3>
+          <button class="close-modal" id="closeModal">&times;</button>
+        </div>
+        <div class="qr-container" id="qrCode"></div>
+        <p class="text-center">Scan this QR code to quickly access product information</p>
+      </div>
+    </div>
+    
+    <footer class="footer">
+      <p>&copy; 2025 FarmChain - Agricultural Supply Chain Tracker powered by Ethereum Blockchain</p>
+    </footer>
   </div>
-
+  
   <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="app.js"></script>
-</body>
-</html>
+
+  
