@@ -3,77 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trade Finance - Letter of Credit</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Letter of Credit DApp</title>
     <link rel="stylesheet" href="styles.css">
+
 </head>
 <body>
+    <header>
+        <div class="container">
+            <h1>Letter of Credit Management System</h1>
+            <div class="network-status">
+                <div id="statusIndicator" class="status-indicator disconnected"></div>
+                <span id="connectionStatus">Disconnected</span>
+                <span id="accountInfo" style="margin-left: auto;"></span>
+            </div>
+        </div>
+    </header>
+    
     <div class="container">
-        <header>
-            <h1>Trade Finance - Letter of Credit</h1>
-        </header>
-
-        <div class="form-container">
-            <h3>Request Letter of Credit</h3>
-            <form id="requestLCForm" class="form">
-                <div class="input-group">
-                    <label for="expiryDate">Expiry Date (timestamp)</label>
-                    <input type="number" id="expiryDate" placeholder="Enter expiry timestamp" required>
-                </div>
-                <div class="input-group">
-                    <label for="buyer">Buyer Address</label>
-                    <input type="text" id="buyer" placeholder="Enter buyer address" required>
-                </div>
-                <div class="input-group">
-                    <label for="bank">Bank Address</label>
-                    <input type="text" id="bank" placeholder="Enter bank address" required>
-                </div>
-                <div class="input-group">
-                    <label for="seller">Seller Address</label>
-                    <input type="text" id="seller" placeholder="Enter seller address" required>
-                </div>
-                <div class="input-group">
-                    <label for="amount">Amount</label>
-                    <input type="number" id="amount" placeholder="Enter amount" required>
-                </div>
-                <button type="submit" class="btn">Request LC</button>
-                <div id="requestStatus" class="status-message"></div>
-            </form>
+        <div id="notification"></div>
+        
+        <div class="card">
+            <h2 class="card-title">Connect to MetaMask</h2>
+            <button id="connectWallet">Connect Wallet</button>
         </div>
-
-        <div class="form-container">
-            <h3>Issue Letter of Credit</h3>
-            <div class="input-group">
-                <input type="number" id="lcIDToIssue" placeholder="Letter of Credit ID" required>
-                <button class="btn" onclick="issueLetterOfCredit()">Issue LC</button>
+        
+        <div class="grid">
+            <div class="card">
+                <h2 class="card-title">Request Letter of Credit</h2>
+                <form id="requestForm">
+                    <div class="form-group">
+                        <label for="expiryDate">Expiry Date (Unix Timestamp)</label>
+                        <input type="number" id="expiryDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="buyer">Buyer Address</label>
+                        <input type="text" id="buyer" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bank">Bank Address</label>
+                        <input type="text" id="bank" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="seller">Seller Address</label>
+                        <input type="text" id="seller" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount (in Wei)</label>
+                        <input type="number" id="amount" required>
+                    </div>
+                    <button type="submit">Request Letter of Credit</button>
+                </form>
             </div>
-            <div id="issueStatus" class="status-message"></div>
-        </div>
-
-        <div class="form-container">
-            <h3>Accept Letter of Credit</h3>
-            <div class="input-group">
-                <input type="number" id="lcIDToAccept" placeholder="Letter of Credit ID" required>
-                <button class="btn" onclick="acceptLetterOfCredit()">Accept LC</button>
+            
+            <div class="card">
+                <h2 class="card-title">Manage Letters of Credit</h2>
+                <div class="form-group">
+                    <label for="letterId">Letter ID</label>
+                    <input type="number" id="letterId">
+                    <button id="viewLetter" style="margin-top: 10px;">View Details</button>
+                </div>
+                
+                <div id="letterDetails" style="margin-top: 20px; display: none;">
+                    <h3>Letter of Credit Details</h3>
+                    <table>
+                        <tr>
+                            <th>ID</th>
+                            <td id="detail-id"></td>
+                        </tr>
+                        <tr>
+                            <th>Expiry Date</th>
+                            <td id="detail-expiry"></td>
+                        </tr>
+                        <tr>
+                            <th>Buyer</th>
+                            <td id="detail-buyer"></td>
+                        </tr>
+                        <tr>
+                            <th>Bank</th>
+                            <td id="detail-bank"></td>
+                        </tr>
+                        <tr>
+                            <th>Seller</th>
+                            <td id="detail-seller"></td>
+                        </tr>
+                        <tr>
+                            <th>Amount</th>
+                            <td id="detail-amount"></td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td id="detail-status"></td>
+                        </tr>
+                    </table>
+                    
+                    <div class="actions">
+                        <button id="issueLetter" class="btn-success">Issue Letter</button>
+                        <button id="acceptLetter" class="btn-success">Accept Letter</button>
+                    </div>
+                </div>
             </div>
-            <div id="acceptStatus" class="status-message"></div>
         </div>
-
-        <div class="form-container">
-            <h3>View Letter of Credit</h3>
-            <div class="input-group">
-                <input type="number" id="lcIDToView" placeholder="Letter of Credit ID" required>
-                <button class="btn" onclick="viewLetterOfCredit()">View LC</button>
+        
+        <div class="card">
+            <h2 class="card-title">Letter of Credit Registry</h2>
+            <div id="letterRegistry">
+                <div class="form-group">
+                    <button id="loadLetters">Load Letters</button>
+                </div>
+                <table id="lettersTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Buyer</th>
+                            <th>Seller</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lettersTableBody">
+                    </tbody>
+                </table>
             </div>
-            <div id="lcDetails"></div>
         </div>
-
-        <footer>
-            <p>&copy; 2025 Trade Finance. All rights reserved.</p>
-        </footer>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js"></script>
-    <script src="app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.2/web3.min.js"></script>
+    <script src="app.js">
+      
+    </script>
 </body>
 </html>
