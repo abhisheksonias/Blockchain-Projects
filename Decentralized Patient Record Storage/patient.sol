@@ -58,14 +58,15 @@ contract PatientRecord {
         doctors[msg.sender] = Doctor(doctorCount, _name, _qualification, _workPlace);
     }
 
-    // Register a new patient
-    function registerPatient(
-        string memory _name,
-        uint _age
-    ) public {
-        patientCount++;
-        patients );
-    }
+  function registerPatient(
+    string memory _name,
+    uint _age
+) public {
+    require(bytes(patients[msg.sender].name).length == 0, "Patient already registered");
+
+    patientCount++;
+    patients[msg.sender] = Patient(patientCount, _name, _age, new string[](0));
+}
 
     // Add a disease to the calling patient's record
     function addDisease(string memory _disease) public {
