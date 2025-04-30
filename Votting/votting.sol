@@ -40,7 +40,7 @@ contract VotingSystem {
     event VoterAdded(address voterAddress);
     event ElectionStarted();
     event ElectionEnded();
-    event VoteCasteded(address voter, uint candidateId);
+    event VoteCasted(address voter, uint candidateId);
     event VotingRightDelegated(address from, address to);
     
     // Modifiers
@@ -163,7 +163,7 @@ contract VotingSystem {
         // Add weight of the voter to the candidate's vote count
         candidates[_candidateId].voteCount += voters[msg.sender].weight;
         
-        emit VoteCasteded(msg.sender, _candidateId);
+        emit VoteCasted(msg.sender, _candidateId);
     }
     
     // Get candidate details
